@@ -1,113 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HackerLink - URL Shortener</title>
+    <title>Ainchel Magic - Winter is Coming</title>
     <style>
-        /* Matrix Background */
         body {
             margin: 0;
-            background: black;
+            padding: 0;
+            font-family: 'Cinzel', serif;
+            background: url('https://wallpaperaccess.com/full/317501.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            text-align: center;
             overflow: hidden;
-            color: #00ff00;
-            font-family: monospace;
         }
-        canvas {
+
+        h1 {
+            margin-top: 50px;
+            font-size: 3em;
+            text-shadow: 2px 2px 8px #000;
+        }
+
+        form {
+            margin-top: 30px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ccc;
+        }
+
+        #snow-canvas {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: -1;
-        }
-        .container {
-            position: relative;
-            z-index: 10;
-            max-width: 600px;
-            margin: 100px auto;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            box-shadow: 0px 0px 20px #00ff00;
-        }
-        h1 {
-            text-align: center;
-            color: #00ff00;
-        }
-        input, button {
             width: 100%;
-            padding: 10px;
-            background: black;
-            color: #00ff00;
-            border: 1px solid #00ff00;
-            margin-top: 10px;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #00ff00;
-            color: black;
-            cursor: pointer;
-        }
-        .short-url-box {
-            margin-top: 20px;
-            background: rgba(0, 255, 0, 0.1);
-            padding: 10px;
-            border: 1px dashed #00ff00;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <canvas id="matrix"></canvas>
+    <canvas id="snow-canvas"></canvas>
+    <h1>❄ Ainchel Magic - Winter is Coming ❄</h1>
+    
+    <form method="POST">
+        <input type="text" name="long_url" placeholder="Enter your long URL" required>
+        <input type="submit" value="Shorten">
+    </form>
 
-    <div class="container">
-        <h1>HackerLink</h1>
-        <form action="/" method="POST">
-            <input type="url" name="long_url" placeholder="Enter your long URL..." required>
-            <button type="submit">Generate Short Link</button>
-        </form>
-
-        {% if short_url %}
-        <div class="short-url-box">
-            <h3>Your shortened link:</h3>
-            <a href="{{ short_url }}" target="_blank" style="color:#00ff00;">{{ short_url }}</a>
-        </div>
-        {% endif %}
-    </div>
+    {% if short_url %}
+        <p>Your Shortened URL:</p>
+        <a href="{{ short_url }}" target="_blank">{{ short_url }}</a>
+    {% endif %}
 
     <script>
-        // Matrix effect
-        const canvas = document.getElementById('matrix');
+        const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.height = window.innerHeight;
-        canvas.width = window.innerWidth;
+        let snowflakes = [];
 
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%';
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
-
-        function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#0F0';
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = letters.charAt(Math.floor(Math.random() * letters.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-        setInterval(draw, 33);
-
-        // Handle resize
-        window.addEventListener('resize', () => {
-            canvas.height = window.innerHeight;
+        function resizeCanvas() {
             canvas.width = window.innerWidth;
-        });
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createSnowflakes() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const radius = Math.random() * 4 + 1;
+            const speed = Math.random() * 1 + 0.5;
+            snowflakes.push({ x, y, radius, speed });
+        }
+
+        function drawSnowflakes() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            snowflakes.forEach((flake) => {
+                ctx.moveTo(flake.x, flake.y);
+                ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+            });
+            ctx.fill();
+            updateSnowflakes();
+        }
+
+        function updateSnowflakes() {
+            snowflakes.forEach((flake) => {
+                flake.y += flake.speed;
+                if (flake.y > canvas.height) {
+                    flake.y = 0;
+                    flake.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        function snow() {
+            drawSnowflakes();
+            requestAnimationFrame(snow);
+        }
+
+        setInterval(createSnowflakes, 100);
+        snow();
     </script>
 </body>
 </html>
