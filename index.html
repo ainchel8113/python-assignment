@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackerLink - URL Shortener</title>
+    <style>
+        /* Matrix Background */
+        body {
+            margin: 0;
+            background: black;
+            overflow: hidden;
+            color: #00ff00;
+            font-family: monospace;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 600px;
+            margin: 100px auto;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px #00ff00;
+        }
+        h1 {
+            text-align: center;
+            color: #00ff00;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            background: black;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #00ff00;
+            color: black;
+            cursor: pointer;
+        }
+        .short-url-box {
+            margin-top: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            padding: 10px;
+            border: 1px dashed #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+
+    <div class="container">
+        <h1>HackerLink</h1>
+        <form action="/" method="POST">
+            <input type="url" name="long_url" placeholder="Enter your long URL..." required>
+            <button type="submit">Generate Short Link</button>
+        </form>
+
+        {% if short_url %}
+        <div class="short-url-box">
+            <h3>Your shortened link:</h3>
+            <a href="{{ short_url }}" target="_blank" style="color:#00ff00;">{{ short_url }}</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Matrix effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 33);
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+        });
+    </script>
+</body>
+</html>
